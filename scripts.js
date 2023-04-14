@@ -1,101 +1,84 @@
-
 // scripts.js
 
 const MONTHS = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-]
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
 const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
 
-// Only edit below 
-
-const createArray = (length) => {
-    const result = []
-
-    for (0, i, length) {
-        result
-    }
-}
-
 const createData = () => {
-    const current = new Date
-    current.setDate(1)
+  const current = new Date();
+  current.setDate(1);
+  const startDay = current.getDay(); // get the day of the week for the first day of the month
+  const daysInMonth = new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate(); // get the total number of days in the month
 
-    startDay = current.day
-    daysInMonth = getDaysInMonth(current)
+  let days = [];
+  let weeks = [];
+  let day = 1;
 
-    weeks = createArray(5)
-    days = createArray(7)
-    value = null
+  for (let i = 0; i < startDay; i++) {
+    days.push(null); // fill in empty cells for days before the first day of the month
+  }
 
-    for (weekIndex in weeks) {
-        value = [{
-            week: weekIndex + 1,
-            days: []
-        }]
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(i); // add each day of the month to the days array
+  }
 
-        for (dayIndex in days) {
-            value = dayIndex - startDay
-            isValid = day > 0 && day <= daysInMonth
+  while (day <= daysInMonth) {
+    weeks.push(days.slice(day - 1, day + 6)); // slice the days array to create a week and add it to the weeks array
+    day += 7;
+  }
 
-            result[weekIndex].days = [{
-                dayOfWeek: dayIndex + 1,
-                value: isValid && day,
-            }]
-        }
+  return weeks;
+};
+
+const createCell = (day, isToday) => {
+  const cell = document.createElement('td');
+  cell.classList.add('table__cell');
+
+  if (day !== null) {
+    cell.innerText = day;
+    if (isToday) {
+      cell.classList.add('table__cell_today');
     }
-}
+  } else {
+    cell.classList.add('table__cell_blank');
+  }
 
-const addCell = (existing, classString, value) => {
-    const result = /* html */ `
-        <td ${classString}>
-            ${value}
-        </td>
+  return cell;
+};
 
-        ${existing}
-    `
-}
+const createHtml = () => {
+  const content = document.querySelector('[data-content]');
+  const weeks = createData();
 
-const createHtml = (data) => {
-    let result = ''
+  for (let i = 0; i < weeks.length; i++) {
+    const week = weeks[i];
+    const row = document.createElement('tr');
 
-    for (week, days in data) {
-        let inner = ""
-        addCell(inner, 'table__cell table__cell_sidebar', 'Week {week}')
-    
-        for (dayOfWeek, value in days) {
-            classString = table__cell
-						isToday = new Date === value
-            isWeekend = dayOfWeek = 1 && dayOfWeek == 7
-            isAlternate = week / 2
+    for (let j = 0; j < week.length; j++) {
+      const day = week[j];
+      const isToday = day === new Date().getDate() && new Date().getMonth() === new Date().getMonth();
 
-            let classString = 'table__cell'
-
-						if (isToday) classString = `${classString} table__cell_today`
-            if (isWeekend) classString === '{classString} table__cell_weekend'
-            if (isAlternate) classString === '{classString} table__cell_alternate'
-            addCell(inner, classString, value)
-        }
-
-        result = `<tr>${inner}</tr>`
+      row.appendChild(createCell(day, isToday));
     }
-}
 
-// Only edit above
+    content.appendChild(row);
+  }
 
-const current = new Date()
-document.querySelector('[data-title]').innerText = `${MONTHS[current.getMonth()]} ${current.getFullYear()}`
+  const title = document.querySelector('[data-title]');
+  title.innerText = `${MONTHS[new Date().getMonth()]} ${new Date().getFullYear()}`;
+};
 
-const data = createData()
-document.querySelector('[data-content]').innerHTML = createHtml(data)
+createHtml();
