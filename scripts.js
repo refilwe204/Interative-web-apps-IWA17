@@ -1,84 +1,102 @@
-// scripts.js
-
 const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+	'January',
+	'February',
+	'March',
+	'April',
+	'May',
+	'June',
+	'July',
+	'August',
+	'September',
+	'October',
+	'November',
+	'December',
 ];
 
-const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 
-const createData = () => {
-  const current = new Date();
-  current.setDate(1);
-  const startDay = current.getDay(); // get the day of the week for the first day of the month
-  const daysInMonth = new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate(); // get the total number of days in the month
+// Only edit below
 
-  let days = [];
-  let weeks = [];
-  let day = 1;
+//Note, for me to be able to fix this, I had to change most of the code if not all of it.
+const createData = () => { //added const to createData and assigned it to the following variables
+	// Bellow are the variables that were assigned by the createData constant
+	const current = new Date();
+	const year = current.getFullYear();
+	const month = current.getMonth();
+	const daysInMonth = getDaysInMonth(year, month);
 
-  for (let i = 0; i < startDay; i++) {
-    days.push(null); // fill in empty cells for days before the first day of the month
-  }
+  const weeks = [];
+	let week = [];
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(i); // add each day of the month to the days array
-  }
+	// Find the first day of the month
+	const firstDay = new Date(year, month, 1).getDay();
 
-  while (day <= daysInMonth) {
-    weeks.push(days.slice(day - 1, day + 6)); // slice the days array to create a week and add it to the weeks array
-    day += 7;
-  }
+	// Offset for starting week from Saturday
+	let offset = firstDay < 6 ? firstDay + 1 : 6;
 
-  return weeks;
+	for (let i = 0; i < offset; i++) {
+		week.push(null); // filled in empty cells for days before the first day of the month
+	}
+
+	for (let day = 1; day <= daysInMonth; day++) {
+		week.push(day); // Used a for loop to add each day of the month to the week array
+
+		if (week.length === 7) {
+			// if week array has 7 days, push it to weeks array and start a new week
+			weeks.push(week);
+			week = [];
+		}
+	}
+
+	// Push the last week to weeks array
+	if (week.length > 0) {
+		weeks.push(week);
+	}
+
+	return weeks;
+  
 };
 
 const createCell = (day, isToday) => {
-  const cell = document.createElement('td');
-  cell.classList.add('table__cell');
+	const cell = document.createElement('td');
+	cell.classList.add('table__cell');
 
-  if (day !== null) {
-    cell.innerText = day;
-    if (isToday) {
-      cell.classList.add('table__cell_today');
-    }
-  } else {
-    cell.classList.add('table__cell_blank');
-  }
-
-  return cell;
+	if (day !== null) { //This is to check if day is not null
+		cell.innerText = day;
+		if (isToday) {// Check if isToday is true
+			cell.classList.add('table__cell_today');
+		}
+	} 
+	return cell;
 };
 
 const createHtml = () => {
-  const content = document.querySelector('[data-content]');
-  const weeks = createData();
+	const content = document.querySelector('[data-content]');
+	const weeks = createData();
 
-  for (let i = 0; i < weeks.length; i++) {
-    const week = weeks[i];
-    const row = document.createElement('tr');
+	for (let i = 0; i < weeks.length; i++) {
+		const week = weeks[i];
+		const row = document.createElement('tr');
 
-    for (let j = 0; j < week.length; j++) {
-      const day = week[j];
-      const isToday = day === new Date().getDate() && new Date().getMonth() === new Date().getMonth();
+		// Create and append the week number cell
+		const weekNumber = document.createElement('td');
+		weekNumber.classList.add('table__cell_week');
+		weekNumber.innerText = `Week ${i + 1}`;
+		row.appendChild(weekNumber);
 
+		for (let j = 0; j < week.length; j++) {
+			const day = week[j];
+			const isToday = day === new Date().getDate() && new Date().getMonth() === new Date().getMonth();
+ 
       row.appendChild(createCell(day, isToday));
-    }
+		}
 
-    content.appendChild(row);
-  }
+		content.appendChild(row);
+	}
+}
+// Only edit above
 
-  const title = document.querySelector('[data-title]');
-  title.innerText = `${MONTHS[new Date().getMonth()]} ${new Date().getFullYear()}`;
-};
+const current = new Date();
+document.querySelector('[data-title]').innerText = `${MONTHS[current.getMonth()]} ${current.getFullYear()}`;
 
 createHtml();
